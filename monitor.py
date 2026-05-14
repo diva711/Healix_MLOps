@@ -1,10 +1,14 @@
+
 import pandas as pd
-from evidently.report import Report
-from evidently.metric_preset import DataDriftPreset
+# NOTE: evidently renamed its public API in v0.5+.
+# The original top-level imports (evidently.report, evidently.metric_preset)
+# are now under evidently.legacy — which works in all versions >= 0.5.
+from evidently.legacy.report import Report
+from evidently.legacy.metric_preset import DataDriftPreset
 
 def run_monitoring():
     ref = pd.read_csv("data.csv")[['wait_time_mins']]
-    # Simulate current data from the logs we saved
+    # Read production logs saved by serve.py
     curr = pd.read_csv("production_logs.csv", names=['wait_time_mins', 'satisfied'])
 
     # Create the Drift Report
