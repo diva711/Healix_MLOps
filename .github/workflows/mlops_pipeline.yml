@@ -28,12 +28,10 @@ jobs:
             evidently==0.7.20
 
       - name: Pull Data from DVC
-        env:
-          DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
-          dvc remote modify origin --local access_key_id $DAGSHUB_TOKEN
-          dvc remote modify origin --local secret_access_key $DAGSHUB_TOKEN
+          dvc remote modify origin --local access_key_id ${{ secrets.DAGSHUB_TOKEN }}
+          dvc remote modify origin --local secret_access_key ${{ secrets.DAGSHUB_TOKEN }}
           dvc pull
 
       - name: Run Training and Registry
-        run: python train.py
+        run: python train.py 
