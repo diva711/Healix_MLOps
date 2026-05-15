@@ -1,6 +1,2 @@
 [core]
-    remote = myremote
-['remote "myremote"']
-    url = gdrive://1uqwcyYfWvz0ha31yJtEuOqQamt4EGdKg
-    gdrive_use_service_account = true
-    gdrive_service_account_json_file_path = C:\Users\user2\data\experiment tracking\healix-mlops-57e5ab9b0661.json
+    remote = dagshub_remote
