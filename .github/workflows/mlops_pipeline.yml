@@ -1,9 +1,11 @@
 name: ML Pipeline
-on: [push] # This triggers the factory every time you push code
+
+on: [push]
 
 jobs:
   train-and-register:
-    runs-on: ubuntu-latest # The 'Virtual Computer'
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -15,13 +17,15 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install pandas scikit-learn mlflow dvc
+          pip install pandas scikit-learn mlflow dvc dvc-s3
 
       - name: Pull Data from DVC
-        # In a real setup, you'd add your DVC remote credentials here
+        env:
+          DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
-          # dvc pull (omitted for now to keep it simple locally)
-          echo "DVC would pull data.csv here"
+          dvc remote modify origin --local access_key_id $DAGSHUB_TOKEN
+          dvc remote modify origin --local secret_access_key $DAGSHUB_TOKEN
+          dvc pull
 
       - name: Run Training and Registry
         run: python train.py
