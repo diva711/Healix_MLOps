@@ -6,3 +6,4 @@ fastapi==0.111.0
 uvicorn==0.29.0
 evidently==0.7.20
 google-generativeai==0.5.4
+dvc[gdrive]
