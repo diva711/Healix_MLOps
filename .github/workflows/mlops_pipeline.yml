@@ -31,7 +31,7 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.DAGSHUB_TOKEN }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DAGSHUB_TOKEN }}
-        run: dvc pull
+        run: dvc pull --force
 
       - name: Run Training and Registry
         run: python train.py 
