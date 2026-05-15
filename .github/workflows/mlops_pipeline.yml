@@ -29,8 +29,10 @@ jobs:
 
       - name: Pull Data from DVC
         run: |
-          dvc remote modify origin --local access_key_id ${{ secrets.DAGSHUB_TOKEN }}
-          dvc remote modify origin --local secret_access_key ${{ secrets.DAGSHUB_TOKEN }}
+          mkdir -p .dvc
+          echo "[remote \"origin\"]" >> .dvc/config.local
+          echo "    access_key_id = ${{ secrets.DAGSHUB_TOKEN }}" >> .dvc/config.local
+          echo "    secret_access_key = ${{ secrets.DAGSHUB_TOKEN }}" >> .dvc/config.local
           dvc pull
 
       - name: Run Training and Registry
