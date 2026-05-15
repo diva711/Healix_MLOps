@@ -1,5 +1,7 @@
 [core]
-    remote = origin
+    remote = myremote
 ['remote "origin"']
     url = s3://dvc
     endpointurl = https://dagshub.com/divachandra583/Healix_MLOps.s3
+['remote "myremote"']
+    url = gdrive://your-folder-id
