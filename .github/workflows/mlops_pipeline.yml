@@ -28,12 +28,10 @@ jobs:
             evidently==0.7.20
 
       - name: Pull Data from DVC
-        run: |
-          mkdir -p .dvc
-          echo "[remote \"origin\"]" >> .dvc/config.local
-          echo "    access_key_id = ${{ secrets.DAGSHUB_TOKEN }}" >> .dvc/config.local
-          echo "    secret_access_key = ${{ secrets.DAGSHUB_TOKEN }}" >> .dvc/config.local
-          dvc pull
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.DAGSHUB_TOKEN }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DAGSHUB_TOKEN }}
+        run: dvc pull
 
       - name: Run Training and Registry
         run: python train.py 
