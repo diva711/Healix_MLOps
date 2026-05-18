@@ -4,4 +4,4 @@
     url = s3://dvc
     endpointurl = https://dagshub.com/divachandra583/Healix_MLOps.s3
 ['remote "myremote"']
-    url = gdrive://your-folder-id
+    url = gdrive://1uqwcyYfWvz0ha31yJtEuOqQamt4EGdKg
