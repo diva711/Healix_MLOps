@@ -4,7 +4,7 @@ import mlflow.sklearn
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-mlflow.set_tracking_uri("sqlite:///mlflow.db")
+mlflow.set_tracking_uri("https://dagshub.com/divachandra583/Healix_MLOps.mlflow")
 
 # 1. Start the Experiment
 mlflow.set_experiment("Healix_Patient_Satisfaction")
