@@ -35,4 +35,7 @@ jobs:
         run: dvc pull --force
 
       - name: Run Training and Registry
+        env:
+          MLFLOW_TRACKING_USERNAME: divachandra583
+          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
         run: python train.py
