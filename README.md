@@ -1,57 +1,113 @@
-# ML Experiment Tracking with MLflow 🚀
+# Healix MLOps
 
-## Project Overview
-This project demonstrates a hands-on implementation of the **Machine Learning Life Cycle**, specifically focusing on **Experiment Tracking**. I used **MLflow** to log parameters, metrics, and models during the training of a Random Forest Regressor.
+An end-to-end MLOps pipeline for predicting patient satisfaction based on wait time. The project covers data versioning, experiment tracking, model registry, drift monitoring, and CI/CD automation.
 
-## 📊 Dataset Information
-For this implementation, a **Synthetic Linear Dataset** was used to simulate a regression problem. 
+## What this project does
 
-* **Type:** Generated using Python's `range` function and list comprehensions.
-* **Structure:** * **Features ($X$):** A single independent variable representing a sequence from 0 to 99.
-    * **Target ($y$):** A dependent variable calculated using the linear relationship $y = 2x$.
-* **Pre-processing:** The data was split into **80% Training** and **20% Testing** sets using `train_test_split` to evaluate the model's ability to generalize to unseen data.
+A Random Forest classifier is trained on `data.csv` to predict whether a patient is satisfied given their wait time in minutes. On every push to main, the CI pipeline pulls the latest data, trains the model, logs the run to MLflow, and registers the best version under the alias `@champion`.
 
-## Key Features
-* **Automated Logging:** Tracks hyperparameters like `n_estimators` and `max_depth`.
-* **Metric Tracking:** Logs the Mean Squared Error (MSE) to evaluate model performance.
-* **Model Registry:** Saves the trained model as an artifact for future deployment.
-* **Interactive Dashboard:** Uses the MLflow UI to compare different runs visually.
+## Stack
 
-## Tech Stack
-* **Language:** Python 3.12
-* **ML Library:** Scikit-Learn
-* **Experiment Tracking:** MLflow
-* **Data Handling:** Pandas
+- **DVC** -- data versioning, remote storage on DagsHub (S3-compatible)
+- **MLflow** -- experiment tracking and model registry, hosted on DagsHub
+- **Evidently** -- data drift detection between reference and production data
+- **scikit-learn** -- Random Forest classifier
+- **GitHub Actions** -- CI/CD pipeline
+- **FastAPI** -- model serving
 
-## How to Run This Project
+## Project structure
 
-### 1. Prerequisites
-Ensure you have Python installed. You can install the required dependencies using:
+```
+Healix_MLOps/
+├── .dvc/
+│   └── config              # DVC remote pointing to DagsHub S3
+├── .github/
+│   └── workflows/
+│       └── mlops_pipeline.yml
+├── data.csv                # tracked by DVC, not committed to git
+├── data.csv.dvc            # DVC pointer file
+├── train.py                # training, MLflow logging, model registration
+├── serve.py                # FastAPI inference endpoint
+├── monitor.py              # Evidently drift report generation
+├── production_logs.csv     # logs from serve.py for drift monitoring
+├── drift_report.html       # output of monitor.py
+└── requirements.txt
+```
+
+## CI pipeline
+
+On every push to `main`, the pipeline runs these steps:
+
+1. Checkout code
+2. Set up Python 3.10
+3. Install dependencies (pinned versions)
+4. Pull data from DagsHub via `dvc pull --force`
+5. Train the model and log to MLflow (`python train.py`)
+
+DagsHub credentials are stored as a GitHub secret (`DAGSHUB_TOKEN`) and injected at runtime.
+
+## Setup
+
+### Prerequisites
+
+- Python 3.10
+- A DagsHub account with this repo connected
+
+### Local setup
+
 ```bash
+git clone https://github.com/diva711/Healix_MLOps.git
+cd Healix_MLOps
 pip install -r requirements.txt
 ```
 
-### 2. Run the Training Script
-Execute the script to train the model and log the experiment:
+Configure DVC credentials locally:
+
+```bash
+dvc remote modify origin --local access_key_id YOUR_DAGSHUB_TOKEN
+dvc remote modify origin --local secret_access_key YOUR_DAGSHUB_TOKEN
+dvc pull
+```
+
+### Run training
+
 ```bash
 python train.py
-
 ```
 
-### 3. Launch the MLflow UI
-To view your "lab notebook" and compare results:
+Experiments are logged to: https://dagshub.com/divachandra583/Healix_MLOps/experiments
+
+### Run inference server
 
 ```bash
-python -m mlflow ui --host 127.0.0.1 --workers 1
+uvicorn serve:app --reload
 ```
 
-Then, open your browser and go to http://127.0.0.1:5000.
+### Run drift monitoring
 
-## What I Learned
-How to set up a professional ML development environment using virtual environments.
+```bash
+python monitor.py
+```
 
-The importance of logging "metadata" (parameters and metrics) instead of just writing them down.
+Opens `drift_report.html` with an Evidently data drift report comparing `data.csv` (reference) against `production_logs.csv` (current).
 
-How to use a tracking server to compare model versions and pick the best performing one.
+## GitHub Actions secrets required
 
-Standardizing project dependencies with a requirements.txt file.
+| Secret | Description |
+|---|---|
+| `DAGSHUB_TOKEN` | DagsHub access token, used for both DVC and MLflow auth |
+
+## DVC remote
+
+```
+url = s3://dvc
+endpointurl = https://dagshub.com/divachandra583/Healix_MLOps.s3
+```
+
+## MLflow tracking
+
+```
+https://dagshub.com/divachandra583/Healix_MLOps.mlflow
+```
+
+The trained model is registered as `Healix_Sentiment_Model` and aliased as `@champion` after each successful run.
